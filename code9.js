@@ -1,4 +1,4 @@
-        // قائمة بالمواقع المحظورة (سيتم تحديثها تلقائيًا)
+   // قائمة بالمواقع المحظورة (سيتم تحديثها تلقائيًا)
         const blockedSites = [];
         let currentDomain = ''; // متغير لتخزين النطاق الحالي
 
@@ -13,61 +13,6 @@
             }
         }
 
-        // دالة للتحقق مما إذا كان يمكن عرض موقع داخل iframe
-        function isSiteAllowedInIframe(url, callback) {
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none'; // إخفاء الإطار
-
-            // مراقبة طلبات الشبكة
-            iframe.onload = function() {
-                console.log('Site may be allowed:', url);
-                // هنا يمكنك التحقق من طلبات الشبكة
-                checkNetworkRequests(iframe, url, callback);
-            };
-
-            iframe.onerror = function() {
-                console.log('Site may be blocked (onerror):', url);
-                document.body.removeChild(iframe);
-                blockedSites.push(url);
-                callback(false);
-            };
-
-            iframe.src = url; // تعيين مصدر الإطار
-            document.body.appendChild(iframe); // إضافة الإطار إلى الصفحة
-        }
-
-        function checkNetworkRequests(iframe, url, callback) {
-            // بعد تحميل الإطار، انتظر قليلًا ثم تحقق من طلبات الشبكة
-            setTimeout(function() {
-                try {
-                    // الحصول على جميع طلبات الشبكة التي تم إجراؤها بواسطة الإطار
-                    const entries = performance.getEntriesByType("resource");
-                    let foundBlockedResource = false;
-
-                    for (const entry of entries) {
-                        if (entry.name === "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABIAQMAAABvIyEEAAAABlBMVEUAAABTU1OoaSf/AAAAAXRSTlMAQObYZgAAAENJREFUeF7tzbEJACEQRNGBLeAasBCza2lLEGx0CxFGG9hBMDDxRy/72O9FMnIFapGylsu1fgoBdkXfUHLrQgdfrlJN1BdYBjQQm3UAAAAASUVORK5CYII=") {
-                            console.log('Found blocked resource:', url);
-                            foundBlockedResource = true;
-                            break;
-                        }
-                    }
-
-                    // إزالة الإطار
-                    document.body.removeChild(iframe);
-                    // استدعاء callback بناءً على ما إذا تم العثور على المورد المحظور أم لا
-                    if (foundBlockedResource) {
-                        blockedSites.push(url);
-                        callback(false);
-                    } else {
-                        callback(true);
-                    }
-                } catch (e) {
-                    console.error("Error checking network requests:", e);
-                    callback(true); // في حالة وجود خطأ، افترض أنه مسموح به
-                }
-            }, 1000); // انتظر لمدة ثانية واحدة قبل التحقق
-        }
-
         // تعديل دالة تحديث مصدر الإطار
         function updateIframeSource(pageUrl) {
             var iframe = document.querySelector('iframe');
@@ -80,23 +25,29 @@
                 console.log('Site already blocked:', pageUrl);
                 showTimerPage(iframe, pageUrl);
             } else {
-                // الموقع ليس محظورًا، قم بفحصه
-                console.log('Checking site:', pageUrl);
-                isSiteAllowedInIframe(pageUrl, function(isAllowed) {
-                    if (isAllowed) {
-                        // الموقع مسموح به، قم بتحميله في iframe
-                        console.log('Site is allowed, loading in iframe:', pageUrl);
-                        try { // إضافة try...catch
-                            if (iframe) iframe.src = pageUrl;
-                        } catch (e) {
-                            console.error("Error setting iframe source:", e);
+                // Try setting the iframe source and handle errors directly
+                try {
+                    iframe.src = pageUrl;
+
+                    iframe.onload = function() {
+                        console.log('Site loaded successfully:', pageUrl);
+                    };
+
+                    iframe.onerror = function(e) {
+                        console.error('Error loading site:', pageUrl, e);
+                        // Add to blocked sites only if the error is due to X-Frame-Options
+                        if (e.target.contentDocument && e.target.contentDocument.body) {
+                            const bodyContent = e.target.contentDocument.body.textContent;
+                            if (bodyContent.includes('X-Frame-Options')) {
+                                console.log('Site blocked due to X-Frame-Options:', pageUrl);
+                                blockedSites.push(pageUrl);
+                            }
                         }
-                    } else {
-                        // الموقع غير مسموح به، اعرض صفحة المؤقت
-                        console.log('Site is not allowed, showing timer page:', pageUrl);
                         showTimerPage(iframe, pageUrl);
-                    }
-                });
+                    };
+                } catch (e) {
+                    console.error("Error setting iframe source:", e);
+                }
             }
         }
 
