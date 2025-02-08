@@ -1,0 +1,229 @@
+   // قائمة بالمواقع المحظورة (يجب تحديثها يدويًا)
+const blockedSites = ['facebook.com', 'youtube.com', 'google.com'];
+
+// دالة لاستخراج النطاق من عنوان URL
+function getDomain(url) {
+    try {
+        const urlObj = new URL(url);
+        return urlObj.hostname;
+    } catch (e) {
+        console.error("Invalid URL", url);
+        return '';
+    }
+}
+
+// تعديل دالة تحديث مصدر الإطار
+function updateIframeSource(pageUrl) {
+    var iframe = document.querySelector('iframe');
+
+    // فحص إذا كان الرابط يشير إلى موقع محظور (من القائمة اليدوية)
+    var isBlocked = false;
+    for (var site of blockedSites) {
+        if (pageUrl.includes(site)) {
+            isBlocked = true;
+            break;
+        }
+    }
+
+    if (isBlocked) {
+        // الموقع محظور، اعرض صفحة المؤقت
+        console.log('Site blocked (manual list):', pageUrl);
+        showTimerPage(iframe, pageUrl);
+    } else {
+        // الموقع ليس محظورًا، حاول تحميله
+        console.log('Attempting to load site:', pageUrl);
+        try {
+            iframe.src = pageUrl;
+        } catch (e) {
+            console.error("Error setting iframe source:", e);
+        }
+    }
+}
+
+// دالة لعرض صفحة المؤقت
+function showTimerPage(iframe, pageUrl) {
+    iframe.classList.add('hidden-iframe');
+
+    const redirectMessage = document.getElementById('redirect-message');
+    if (redirectMessage) {
+        redirectMessage.style.display = 'block';
+        redirectMessage.innerHTML = `
+            <p style="font-size: 16px; color: #333;">جاري نقلك إلى الموقع...</p>
+            <p id="countdown" style="font-size: 24px; color: #ff4500;">30</p>
+        `;
+
+        let countdown = 30;
+        const countdownElement = document.getElementById('countdown');
+        if (countdownElement) {
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                countdownElement.textContent = countdown;
+
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    window.location.href = pageUrl;
+                }
+            }, 1000);
+        }
+    }
+}
+
+function showCtaBox() {
+    const ctaBox = document.getElementById('cta-box');
+    if (ctaBox) {
+        ctaBox.style.opacity = '1';
+        ctaBox.style.transform = 'translateY(0)';
+        ctaBox.classList.add('slide-in');
+    }
+}
+
+// عرض الإعلان المنبثق بعد 15 ثانية
+setTimeout(() => {
+    const adPopup = document.getElementById('ad-popup');
+    if (adPopup) {
+        adPopup.style.display = 'flex';
+    }
+}, 15000);
+
+// إضافة وظائف للأزرار (فتح وإغلاق)
+document.addEventListener('DOMContentLoaded', () => {
+    const adPopup = document.getElementById('ad-popup');
+    if (adPopup) {
+        const openButton = adPopup.querySelector('.popup-open');
+        const closeButton = adPopup.querySelector('.popup-close');
+
+        if (openButton) {
+            openButton.addEventListener('click', () => {
+                window.open(popupCtaUrl, '_blank');
+            });
+        }
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                adPopup.style.display = 'none';
+            });
+        }
+    }
+});
+
+// قراءة بيانات التخصيص من محتوى التدوينة
+function getPostCustomization() {
+    const postBody = document.querySelector('.post-body');
+    if (!postBody) return {};
+
+    const customizationElement = postBody.querySelector('pre.custom-data');
+    if (!customizationElement) return {};
+
+    const customization = {};
+    try {
+        customizationElement.textContent.split(',').forEach(item => {
+            const [key, value] = item.split('*').map(s => s.trim());
+            if (key && value) {
+                customization[key] = decodeURIComponent(value);
+            }
+        });
+    } catch (error) {
+        console.error('Error parsing customization data:', error);
+        return {};
+    }
+
+    // التحقق من البيانات الأساسية
+    if (!customization['page'] || !customization['brandText']) {
+        console.error('Missing required customization data!');
+    }
+
+    return customization;
+}
+
+// تعديل دالة DOMContentLoaded
+document.addEventListener("DOMContentLoaded", () => {
+    try {
+        const customization = getPostCustomization();
+        const pageUrl = customization['page'] || 'https://www.example.com';
+
+        // تحديث مصدر الإطار
+        updateIframeSource(pageUrl);
+
+        // تحديد المتغيرات
+        const brandText = customization['brandText'] || 'Your Brand Name';
+        const messageText = customization['messageText'] || 'Your product and services';
+        const ctaText = customization['ctaText'] || 'Click Here';
+        const ctaTarget = customization['target'] || '#';
+        const logoUrl = customization['logoUrl'] || '#';
+        const buttonBgColor = customization['buttonBgColor'] || '#5db5fa';
+        const textColor = customization['textColor'] || '#333';
+        const buttonBoxBgColor = customization['buttonBoxBgColor'] || '#f0f0f0';
+          const showAfter = Math.max(1000, parseInt(customization['showAfter'] || 5000, 10));
+    //
+        // Get URL
+        // تحديث العناصر
+             const popupContent = customization['popupContent'] || '<p>This is an example popup ad.</p>';
+            const popupCtaText = customization['popupCtaText'] || 'Open';
+                const popupCtaUrl = customization['popupCtaUrl'] || '#';
+        const logoUrlElement = document.getElementById('logo-url');
+            const popupOpenUrlElement = document.getElementById('popup-open-url');
+
+                     const ctaBoxElement = document.getElementById('cta-box');
+
+                          const brandTextElement = document.getElementById('brand-text');
+
+                                     const messageTextElement = document.getElementById('message-text');
+
+       const ctaElement = document.getElementById('cta-text');
+
+            const direction = customization['direction'] || 'ltr';
+                function updateElement(element, customizationValue) {
+             
+                    element.style.backgroundColor = customizationValue;
+                }
+        //Apply attributes for popup
+ if(logoUrlElement)  logoUrlElement.innerHTML = `<img src="${logoUrl}" alt="Logo" style="width: 50px; height: 50px; object-fit: contain; margin-right: 10px; display: block;" />`;
+              // Apply text
+                  if(brandTextElement)  brandTextElement.textContent = brandText;
+             if(messageTextElement)      messageTextElement.textContent = messageText
+
+                        if (ctaElement) ctaElement.href = ctaTarget;
+   if (popupOpenUrlElement && popupCtaUrl) {
+                   popupOpenUrlElement.href = popupCtaUrl
+                  // popupOpenUrlElement.setAttribute('href',popupCtaUrl)
+                   popupOpenUrlElement.target = "_blank";
+                }
+             //set text
+  const popupContentElement = document.querySelector('#ad-popup .popup-content');
+         if (popupContentElement ) popupContentElement.innerHTML = popupContent
+          // Set popupCtaText
+              const popupCtaElement = document.querySelector('#ad-popup .popup-open');
+                   if (popupCtaElement) {
+                      popupCtaElement.textContent =  popupCtaText
+                }
+                 try {
+        if(ctaBoxElement){
+          ctaBoxElement.classList.remove('ltr', 'rtl');
+         ctaBoxElement.classList.add( direction );
+         ctaBoxElement.style.backgroundColor = buttonBoxBgColor
+           brandTextElement.style.color = textColor;
+            messageTextElement.style.color = textColor;
+                    ctaElement.style.backgroundColor = buttonBgColor
+                  //   brandTextElement.font-size = 12 + "px";
+        }
+    } catch (error) {
+    console.error('An error occurred:', error);
+  }
+
+        // إخفاء الإعلان السفلي مؤقتًا
+        const adBottom = document.getElementById('ad-bottom');
+        if (adBottom) adBottom.style.display = 'none';
+
+        // مؤقت لظهور الزر العائم
+   setTimeout(showCtaBox, showAfter);
+
+    // إدارة الإغلاق
+       document.querySelectorAll('.close').forEach(button => {
+            button.addEventListener('click', () => {
+                 if (ctaBoxElement) ctaBoxElement.style.display = 'none';
+            });
+        });
+          
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+});
