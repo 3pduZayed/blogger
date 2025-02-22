@@ -19,6 +19,13 @@ function updateIframeSource(pageUrl) {
     const isBlocked = blockedSites.some(site => currentDomain.includes(site));
 
     // إخفاء العناصر المؤقتة مبدئيًا
+function updateIframeSource(pageUrl) {
+    var iframe = document.querySelector('iframe');
+
+    const currentDomain = getDomain(pageUrl);
+    const isBlocked = blockedSites.some(site => currentDomain.includes(site));
+
+    // إخفاء جميع عناصر الواجهة المؤقتة مبدئيًا
     document.getElementById('redirect-message').style.display = 'none';
     document.getElementById('ads-above-countdown').style.display = 'none';
     document.getElementById('ads-below-countdown').style.display = 'none';
@@ -30,15 +37,17 @@ function updateIframeSource(pageUrl) {
     } else {
         console.log('Attempting to load site:', pageUrl);
         try {
+            // إظهار الـ iframe بحجم كامل
             iframe.classList.remove('hidden-iframe');
             iframe.src = pageUrl;
+            
+            // إخفاء أي عناصر أخرى قد تظهر
             document.getElementById('cta-box').style.display = 'none';
         } catch (e) {
             console.error("Error setting iframe source:", e);
         }
     }
 }
-
 // دالة لعرض صفحة المؤقت
 function showTimerPage(iframe, pageUrl) {
     const redirectMessage = document.getElementById('redirect-message');
