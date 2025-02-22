@@ -25,14 +25,7 @@ function updateIframeSource(pageUrl) {
         console.log('Site blocked (manual list):', pageUrl);
         showTimerPage(iframe, pageUrl);
     } else {
-        // الموقع ليس محظورًا، حاول تحميله
-        console.log('Attempting to load site:', pageUrl);
-        try {
             iframe.src = pageUrl;
-        } catch (e) {
-            console.error("Error setting iframe source:", e);
-        }
-    }
 }
 
 // دالة لعرض صفحة المؤقت
