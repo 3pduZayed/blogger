@@ -50,9 +50,10 @@ function updateIframeSource(pageUrl) {
 }
 // دالة لعرض صفحة المؤقت
 function showTimerPage(iframe, pageUrl) {
-    const redirectMessage = document.getElementById('redirect-message');
-    const adsAboveCountdown = document.getElementById('ads-above-countdown');
-    const adsBelowCountdown = document.getElementById('ads-below-countdown');
+    // إظهار العناصر المؤقتة
+    document.getElementById('redirect-message').style.display = 'block';
+    document.getElementById('ads-above-countdown').style.display = 'block';
+    document.getElementById('ads-below-countdown').style.display = 'block';
 
     if (redirectMessage && adsAboveCountdown && adsBelowCountdown) {
         redirectMessage.style.display = 'block';
