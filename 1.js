@@ -15,20 +15,20 @@ function getDomain(url) {
 // دالة تحديث مصدر الإطار
 function updateIframeSource(pageUrl) {
     var iframe = document.querySelector('iframe');
-    const currentDomain = getDomain(pageUrl);
-    const isBlocked = blockedSites.some(site => currentDomain.includes(site));
-
-    // إخفاء العناصر المؤقتة مبدئيًا
-function updateIframeSource(pageUrl) {
-    var iframe = document.querySelector('iframe');
 
     const currentDomain = getDomain(pageUrl);
     const isBlocked = blockedSites.some(site => currentDomain.includes(site));
 
     // إخفاء جميع عناصر الواجهة المؤقتة مبدئيًا
-    document.getElementById('redirect-message').style.display = 'none';
-    document.getElementById('ads-above-countdown').style.display = 'none';
-    document.getElementById('ads-below-countdown').style.display = 'none';
+    const redirectMessage = document.getElementById('redirect-message');
+    const adsAboveCountdown = document.getElementById('ads-above-countdown');
+    const adsBelowCountdown = document.getElementById('ads-below-countdown');
+    const ctaBox = document.getElementById('cta-box');
+
+    if (redirectMessage) redirectMessage.style.display = 'none';
+    if (adsAboveCountdown) adsAboveCountdown.style.display = 'none';
+    if (adsBelowCountdown) adsBelowCountdown.style.display = 'none';
+    if (ctaBox) ctaBox.style.display = 'block'; // تأكد من ظهور الزر العائم
 
     if (isBlocked) {
         console.log('Site blocked (manual list):', pageUrl);
@@ -39,46 +39,28 @@ function updateIframeSource(pageUrl) {
         try {
             // إظهار الـ iframe بحجم كامل
             iframe.classList.remove('hidden-iframe');
+            iframe.style.width = '100%';  // تأكد من أن الـ iframe يملأ الشاشة
+            iframe.style.height = '100%'; // تأكد من أن الـ iframe يملأ الشاشة
             iframe.src = pageUrl;
-            
-            // إخفاء أي عناصر أخرى قد تظهر
-            document.getElementById('cta-box').style.display = 'none';
+
         } catch (e) {
             console.error("Error setting iframe source:", e);
         }
     }
 }
+
 // دالة لعرض صفحة المؤقت
 function showTimerPage(iframe, pageUrl) {
     // إظهار العناصر المؤقتة
-    document.getElementById('redirect-message').style.display = 'block';
-    document.getElementById('ads-above-countdown').style.display = 'block';
-    document.getElementById('ads-below-countdown').style.display = 'block';
+    const redirectMessage = document.getElementById('redirect-message');
+    const adsAboveCountdown = document.getElementById('ads-above-countdown');
+    const adsBelowCountdown = document.getElementById('ads-below-countdown');
+    const ctaBox = document.getElementById('cta-box');
 
-    if (redirectMessage && adsAboveCountdown && adsBelowCountdown) {
-        redirectMessage.style.display = 'block';
-        adsAboveCountdown.style.display = 'block';
-        adsBelowCountdown.style.display = 'block';
-
-        redirectMessage.innerHTML = `
-            <p style="font-size: 16px; color: #333;">جاري نقلك إلى الموقع...</p>
-            <p id="countdown" style="font-size: 24px; color: #ff4500;">30</p>
-        `;
-
-        let countdown = 30;
-        const countdownElement = document.getElementById('countdown');
-        if (countdownElement) {
-            const countdownInterval = setInterval(() => {
-                countdown--;
-                countdownElement.textContent = countdown;
-
-                if (countdown <= 0) {
-                    clearInterval(countdownInterval);
-                    window.location.href = pageUrl;
-                }
-            }, 1000);
-        }
-    }
+    if (redirectMessage) redirectMessage.style.display = 'block';
+    if (adsAboveCountdown) adsAboveCountdown.style.display = 'block';
+    if (adsBelowCountdown) adsBelowCountdown.style.display = 'block';
+     if (ctaBox) ctaBox.style.display = 'none'; // إخفاء الزر العائم
 }
 
 function showCtaBox() {
@@ -150,9 +132,15 @@ function getPostCustomization() {
 document.addEventListener("DOMContentLoaded", () => {
     try {
         // إخفاء العناصر المؤقتة مبدئيًا
-        document.getElementById('redirect-message').style.display = 'none';
-        document.getElementById('ads-above-countdown').style.display = 'none';
-        document.getElementById('ads-below-countdown').style.display = 'none';
+        const redirectMessage = document.getElementById('redirect-message');
+        const adsAboveCountdown = document.getElementById('ads-above-countdown');
+        const adsBelowCountdown = document.getElementById('ads-below-countdown');
+        const ctaBox = document.getElementById('cta-box');
+
+         if (redirectMessage) redirectMessage.style.display = 'none';
+          if (adsAboveCountdown) adsAboveCountdown.style.display = 'none';
+           if (adsBelowCountdown) adsBelowCountdown.style.display = 'none';
+           if (ctaBox) ctaBox.style.display = 'block';
 
         const customization = getPostCustomization();
         const pageUrl = customization['page'] || 'https://www.example.com';
@@ -189,7 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const brandTextElement = document.getElementById('brand-text');
         if (brandTextElement) brandTextElement.textContent = brandText;
-        
+
         const messageTextElement = document.getElementById('message-text');
         if (messageTextElement) messageTextElement.textContent = messageText;
 
