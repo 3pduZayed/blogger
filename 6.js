@@ -12,53 +12,41 @@ function getDomain(url) {
     }
 }
 
-// دالة تحديث مصدر الإطار
-function updateIframeSource(pageUrl) {
-    var iframe = document.querySelector('iframe');
-    const currentDomain = getDomain(pageUrl);
-    const isBlocked = blockedSites.some(site => currentDomain.includes(site));
-
-    // إخفاء العناصر المؤقتة مبدئيًا
+// تعديل دالة تحديث مصدر الإطار
 function updateIframeSource(pageUrl) {
     var iframe = document.querySelector('iframe');
 
+    // فحص إذا كان الرابط يشير إلى موقع محظور (من القائمة اليدوية)
     const currentDomain = getDomain(pageUrl);
     const isBlocked = blockedSites.some(site => currentDomain.includes(site));
-
-    // إخفاء جميع عناصر الواجهة المؤقتة مبدئيًا
-    document.getElementById('redirect-message').style.display = 'none';
-    document.getElementById('ads-above-countdown').style.display = 'none';
-    document.getElementById('ads-below-countdown').style.display = 'none';
 
     if (isBlocked) {
+        // الموقع محظور، اعرض صفحة المؤقت
         console.log('Site blocked (manual list):', pageUrl);
-        iframe.classList.add('hidden-iframe');
         showTimerPage(iframe, pageUrl);
     } else {
+        // الموقع ليس محظورًا، حاول تحميله
         console.log('Attempting to load site:', pageUrl);
         try {
-            // إظهار الـ iframe بحجم كامل
-            iframe.classList.remove('hidden-iframe');
             iframe.src = pageUrl;
-            
-            // إخفاء أي عناصر أخرى قد تظهر
-            document.getElementById('cta-box').style.display = 'none';
         } catch (e) {
             console.error("Error setting iframe source:", e);
         }
     }
 }
+
 // دالة لعرض صفحة المؤقت
 function showTimerPage(iframe, pageUrl) {
-    // إظهار العناصر المؤقتة
-    document.getElementById('redirect-message').style.display = 'block';
-    document.getElementById('ads-above-countdown').style.display = 'block';
-    document.getElementById('ads-below-countdown').style.display = 'block';
+    iframe.classList.add('hidden-iframe');
+
+    const redirectMessage = document.getElementById('redirect-message');
+    const adsAboveCountdown = document.getElementById('ads-above-countdown');
+    const adsBelowCountdown = document.getElementById('ads-below-countdown');
 
     if (redirectMessage && adsAboveCountdown && adsBelowCountdown) {
-        redirectMessage.style.display = 'block';
-        adsAboveCountdown.style.display = 'block';
-        adsBelowCountdown.style.display = 'block';
+        redirectMessage.style.display = 'block'; // إظهار الرسالة الإشعارية
+        adsAboveCountdown.style.display = 'block'; // إظهار الإعلان العلوي
+        adsBelowCountdown.style.display = 'block'; // إظهار الإعلان السفلي
 
         redirectMessage.innerHTML = `
             <p style="font-size: 16px; color: #333;">جاري نقلك إلى الموقع...</p>
@@ -139,6 +127,7 @@ function getPostCustomization() {
         return {};
     }
 
+    // التحقق من البيانات الأساسية
     if (!customization['page'] || !customization['brandText']) {
         console.error('Missing required customization data!');
     }
@@ -146,19 +135,16 @@ function getPostCustomization() {
     return customization;
 }
 
-// تهيئة الصفحة عند التحميل
+// تعديل دالة DOMContentLoaded
 document.addEventListener("DOMContentLoaded", () => {
     try {
-        // إخفاء العناصر المؤقتة مبدئيًا
-        document.getElementById('redirect-message').style.display = 'none';
-        document.getElementById('ads-above-countdown').style.display = 'none';
-        document.getElementById('ads-below-countdown').style.display = 'none';
-
         const customization = getPostCustomization();
         const pageUrl = customization['page'] || 'https://www.example.com';
 
+        // تحديث مصدر الإطار
         updateIframeSource(pageUrl);
 
+        // تحديد المتغيرات
         const brandText = customization['brandText'] || 'Your Brand Name';
         const messageText = customization['messageText'] || 'Your product and services';
         const ctaText = customization['ctaText'] || 'Click Here';
@@ -167,51 +153,53 @@ document.addEventListener("DOMContentLoaded", () => {
         const buttonBgColor = customization['buttonBgColor'] || '#5db5fa';
         const textColor = customization['textColor'] || '#333';
         const buttonBoxBgColor = customization['buttonBoxBgColor'] || '#f0f0f0';
-        const position = customization['position'] || 'left';
-        const direction = customization['direction'] || 'ltr';
+         const position = customization['position'] || 'left';
+            const direction = customization['direction'] || 'ltr';
         const showAfter = Math.max(1000, parseInt(customization['showAfter'] || 5000, 10));
         const popupContent = customization['popupContent'] || '<p>This is an example popup ad.</p>';
         const popupCtaText = customization['popupCtaText'] || 'Open';
         const popupCtaUrl = customization['popupCtaUrl'] || '#';
 
+        // تحديث العناصر
         const logoUrlElement = document.getElementById('logo-url');
-        if (logoUrlElement) {
-            logoUrlElement.innerHTML = `<img src="${logoUrl}" alt="Logo" style="width: 50px; height: 50px; object-fit: contain; margin-right: 10px; display: block;" />`;
+          if (logoUrlElement) {
+             logoUrlElement.innerHTML = `<img src="${logoUrl}" alt="Logo" style="width: 50px; height: 50px; object-fit: contain; margin-right: 10px; display: block;" />`;
         }
 
         const ctaElement = document.getElementById('cta-text');
         if (ctaElement) {
             ctaElement.href = ctaTarget;
-            ctaElement.target = "_blank";
+                 ctaElement.target = "_blank";
             ctaElement.textContent = ctaText;
             ctaElement.style.backgroundColor = buttonBgColor;
         }
 
         const brandTextElement = document.getElementById('brand-text');
-        if (brandTextElement) brandTextElement.textContent = brandText;
-        
-        const messageTextElement = document.getElementById('message-text');
-        if (messageTextElement) messageTextElement.textContent = messageText;
+       if (brandTextElement)     brandTextElement.textContent = brandText;
+          const messageTextElement = document.getElementById('message-text');
+      if (messageTextElement)        messageTextElement.textContent = messageText;
 
         const popupOpenUrlElement = document.getElementById('popup-open-url');
         if (popupOpenUrlElement && popupCtaUrl) {
             popupOpenUrlElement.href = popupCtaUrl;
             popupOpenUrlElement.target = "_blank";
         }
+             // set box style
 
-        const ctaBoxElement = document.getElementById('cta-box');
-        if (ctaBoxElement){
-            ctaBoxElement.classList.remove('ltr', 'rtl');
-            ctaBoxElement.classList.add(direction);
-            ctaBoxElement.style.left = position === 'right' ? 'auto' : '20px';
-            ctaBoxElement.style.right = position === 'right' ? '20px' : 'auto';
-            ctaBoxElement.style.backgroundColor = buttonBoxBgColor;
-            brandTextElement.style.color = textColor;
-            messageTextElement.style.color = textColor;
-        }
-
+             const ctaBoxElement = document.getElementById('cta-box');
+           if (ctaBoxElement){
+                ctaBoxElement.classList.remove('ltr', 'rtl');
+                                 ctaBoxElement.classList.add( direction );
+                    ctaBoxElement.style.left = position === 'right' ? 'auto' : '20px';
+             ctaBoxElement.style.right = position === 'right' ? '20px' : 'auto';
+           ctaBoxElement.style.backgroundColor = buttonBoxBgColor
+          brandTextElement.style.color = textColor;
+                messageTextElement.style.color = textColor;
+         }
+        // مؤقت لظهور الزر العائم
         setTimeout(showCtaBox, showAfter);
 
+        // إدارة الإغلاق
         document.querySelectorAll('.close').forEach(button => {
             button.addEventListener('click', () => {
                 const ctaBoxElement = document.getElementById('cta-box');
