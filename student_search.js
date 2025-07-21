@@ -111,9 +111,14 @@ document.addEventListener('DOMContentLoaded', () => {
             url = `${API_ENDPOINT}?name=${encodeURIComponent(query)}`;
         }
 
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
+    try {
+        const response = await fetch(url, {
+            // إضافة هذا الجزء لتجاوز تحذير ngrok
+            headers: {
+                "ngrok-skip-browser-warning": "true"
+            }
+        });
+        const data = await response.json();
 
             loadingIndicator.classList.add('hidden');
             searchButton.disabled = false;
